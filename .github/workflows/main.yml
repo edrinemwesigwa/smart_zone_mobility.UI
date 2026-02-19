@@ -59,8 +59,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/smart_zone_mobility_ui:latest
             docker.io/edrinesubaru/smart_zone_mobility_ui:latest
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
