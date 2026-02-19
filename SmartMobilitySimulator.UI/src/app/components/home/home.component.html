@@ -1,0 +1,74 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">Smart Mobility Simulator</h1>
+    <p class="hero-subtitle">
+      Simulate dynamic congestion pricing for UAE cities. Analyze revenue,
+      equity, and environmental impact.
+    </p>
+
+    <div class="doc-downloads">
+      <a
+        class="doc-button"
+        (click)="navigateTo('/business-admin-guide')"
+        style="cursor: pointer"
+      >
+        📄 Business & Admin Guide
+      </a>
+      <a
+        class="doc-button secondary"
+        (click)="navigateTo('/technical-architecture-guide')"
+        style="cursor: pointer"
+      >
+        🔧 Technical Architecture
+      </a>
+    </div>
+  </section>
+
+  <!-- Demo Mode Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <div class="section-icon">🎮</div>
+      <h2 class="section-title">Quick Demo</h2>
+    </div>
+    <div class="section-card">
+      <app-demo-mode></app-demo-mode>
+    </div>
+  </section>
+
+  <!-- Zone Map Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <div class="section-icon">🗺️</div>
+      <h2 class="section-title">Interactive Zone Map</h2>
+    </div>
+    <div class="section-card">
+      <app-zone-map></app-zone-map>
+    </div>
+  </section>
+
+  <!-- Simulation Controls Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <h2 class="section-title">Simulation Controls</h2>
+    </div>
+    <div class="section-card">
+      <app-simulation-controls></app-simulation-controls>
+    </div>
+  </section>
+
+  <!-- Results Dashboard Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <h2 class="section-title">Results Dashboard</h2>
+    </div>
+    <div class="section-card">
+      <app-results-dashboard></app-results-dashboard>
+    </div>
+  </section>
+</div>
+
+
+

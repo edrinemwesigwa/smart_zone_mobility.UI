@@ -1,0 +1,157 @@
+<div class="pilot-container">
+  <div class="pilot-header">
+    <h2>Generate Pilot Proposal</h2>
+    <p>Government-ready proposal builder with live ROI and cost insights.</p>
+  </div>
+
+  <div class="pilot-grid">
+    <div class="pilot-form">
+      <h3>Proposal Generator</h3>
+
+      <label>Simulation</label>
+      <select [(ngModel)]="selectedSimulationId">
+        <option value="">Select simulation</option>
+        <option *ngFor="let sim of simulations" [value]="sim.id">
+          {{ sim.name }} • AED {{ sim.estimatedRevenue | number }} / day
+        </option>
+      </select>
+
+      <div class="templates">
+        <button (click)="applyTemplate('quick')">Quick Pilot</button>
+        <button (click)="applyTemplate('full')">Full Implementation</button>
+        <button (click)="applyTemplate('enterprise')">Enterprise</button>
+      </div>
+
+      <div class="options">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="options.includeUaePassIntegration"
+          />
+          Include UAE Pass integration (50,000 AED)
+        </label>
+        <label>
+          <input type="checkbox" [(ngModel)]="options.includeMobileApp" />
+          Include mobile application (75,000 AED)
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="options.includeHardwareIntegration"
+          />
+          Include Salik gate hardware integration (100,000 AED)
+        </label>
+        <label>
+          <input type="checkbox" [(ngModel)]="options.include24x7Support" />
+          Include 24/7 support (60,000 AED)
+        </label>
+      </div>
+
+      <label>Duration (months)</label>
+      <input
+        type="range"
+        min="3"
+        max="12"
+        step="1"
+        [(ngModel)]="options.durationMonths"
+      />
+      <div class="duration-value">{{ options.durationMonths }} months</div>
+
+      <label>Custom Integration Cost (AED)</label>
+      <input
+        type="number"
+        [(ngModel)]="options.customIntegrationCost"
+        min="0"
+        step="5000"
+      />
+
+      <button
+        class="btn-generate"
+        (click)="generateProposal()"
+        [disabled]="isGenerating"
+      >
+        {{ isGenerating ? "Generating..." : "Generate Proposal" }}
+      </button>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+    </div>
+
+    <div class="pilot-display">
+      <h3>Interactive Proposal</h3>
+
+      <div class="live-calc">
+        <div>
+          <span>Total Pilot Cost</span>
+          <strong>AED {{ getTotalCost() | number }}</strong>
+        </div>
+        <div>
+          <span>Estimated Annual Revenue</span>
+          <strong>AED {{ getEstimatedAnnualRevenue() | number }}</strong>
+        </div>
+        <div>
+          <span>Estimated Monthly Revenue</span>
+          <strong>AED {{ getEstimatedMonthlyRevenue() | number }}</strong>
+        </div>
+      </div>
+
+      <div class="roi-card">
+        <div class="roi-pie" [style.background]="getRoiPieStyle()"></div>
+        <div>
+          <h4>ROI</h4>
+          <p>{{ getROI() | number: "1.0-1" }}%</p>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <h4>Timeline ({{ options.durationMonths }} months)</h4>
+        <div class="timeline-bars">
+          <div class="bar design">Design</div>
+          <div class="bar integration">Integration</div>
+          <div class="bar build">Build & QA</div>
+          <div class="bar pilot">Pilot Run</div>
+        </div>
+      </div>
+
+      <div class="risk-matrix">
+        <h4>Risk Matrix</h4>
+        <div class="matrix-grid">
+          <div class="cell low">Low</div>
+          <div class="cell medium">Med</div>
+          <div class="cell high">High</div>
+          <div class="cell medium">Med</div>
+          <div class="cell high">High</div>
+          <div class="cell high">High</div>
+          <div class="cell low">Low</div>
+          <div class="cell medium">Med</div>
+          <div class="cell high">High</div>
+        </div>
+      </div>
+
+      <div class="proposal-preview" *ngIf="proposal">
+        <h4>Executive Summary</h4>
+        <p>{{ proposal.executiveSummary }}</p>
+
+        <h4>Problem Statement</h4>
+        <p>{{ proposal.problemStatement }}</p>
+
+        <h4>Proposed Solution</h4>
+        <p>{{ proposal.proposedSolution }}</p>
+      </div>
+
+      <div class="export-actions">
+        <button (click)="exportPdf()" [disabled]="!proposal?.pdfBase64">
+          Export PDF
+        </button>
+        <button (click)="exportPowerPoint()" [disabled]="!proposal">
+          Export PowerPoint
+        </button>
+        <button (click)="copyExecutiveSummary()" [disabled]="!proposal">
+          Copy Executive Summary
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

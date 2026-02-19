@@ -1,0 +1,182 @@
+<div class="impact-container">
+  <h2>How Will This Affect ME?</h2>
+  <p class="subtitle">Personalized impact assessment for congestion pricing</p>
+
+  <div class="scenario-selector">
+    <h3>Compare Scenarios</h3>
+    <div class="scenario-buttons">
+      <button
+        *ngFor="let scenario of scenarios"
+        [class.active]="selectedScenario === scenario.value"
+        (click)="selectScenario(scenario.value)"
+      >
+        {{ scenario.name }}
+      </button>
+    </div>
+  </div>
+
+  <div class="personal-details">
+    <h3>Your Profile</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Income Bracket</label>
+        <select
+          [(ngModel)]="incomeBracket"
+          (change)="calculateImpact()"
+          name="income"
+        >
+          <option *ngFor="let bracket of incomeBrackets" [value]="bracket">
+            {{ bracket }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Vehicle Type</label>
+        <select
+          [(ngModel)]="vehicleType"
+          (change)="calculateImpact()"
+          name="vehicle"
+        >
+          <option *ngFor="let type of vehicleTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Home Zone</label>
+        <select [(ngModel)]="homeZone" (change)="calculateImpact()" name="home">
+          <option value="Dubai Marina">Dubai Marina</option>
+          <option value="Sharjah Residential">Sharjah Residential</option>
+          <option value="Khalifa City">Khalifa City</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Work Zone</label>
+        <select [(ngModel)]="workZone" (change)="calculateImpact()" name="work">
+          <option value="Deira Business">Deira Business</option>
+          <option value="Musaffah Industrial">Musaffah Industrial</option>
+          <option value="Downtown Dubai">Downtown Dubai</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="citizenImpact" class="impact-results">
+    <div
+      class="impact-message"
+      [class.warning]="getFairnessRating() === 'Concerning'"
+      [class.danger]="getFairnessRating() === 'Unfair'"
+    >
+      {{ getImpactMessage() }}
+    </div>
+
+    <div class="metrics-grid">
+      <div class="impact-metric">
+        <h4>Weekly Charges</h4>
+        <p class="big-number">
+          AED
+          {{ citizenImpact.weeklyImpact.estimatedCharges | number : "1.0-0" }}
+        </p>
+      </div>
+      <div class="impact-metric">
+        <h4>% of Weekly Income</h4>
+        <p
+          class="big-number"
+          [class.high]="citizenImpact.weeklyImpact.chargePercentageOfIncome > 2"
+        >
+          {{
+            citizenImpact.weeklyImpact.chargePercentageOfIncome
+              | number : "1.2-1"
+          }}%
+        </p>
+      </div>
+      <div class="impact-metric">
+        <h4>Time Saved Daily</h4>
+        <p class="big-number">
+          {{ citizenImpact.weeklyImpact.timeSavings }} min
+        </p>
+      </div>
+      <div class="impact-metric">
+        <h4>Alternative Routes</h4>
+        <p class="big-number">
+          {{ citizenImpact.weeklyImpact.alternativeRoutes }}
+        </p>
+      </div>
+    </div>
+
+    <div class="fairness-indicator">
+      <h4>
+        Fairness Rating:
+        <span [class]="getFairnessRating().toLowerCase()">{{
+          getFairnessRating()
+        }}</span>
+      </h4>
+      <p *ngIf="getFairnessRating() === 'Fair'">
+        ✓ Pricing impact is proportional to your income level
+      </p>
+      <p *ngIf="getFairnessRating() === 'Concerning'">
+        ⚠️ Pricing impact is moderately high for your income bracket
+      </p>
+      <p *ngIf="getFairnessRating() === 'Unfair'">
+        ✗ Pricing creates significant burden for your income bracket - consider
+        exemptions or subsidies
+      </p>
+    </div>
+
+    <div class="comparison-table">
+      <h4>Scenario Comparison</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Current</th>
+            <th>Pessimistic</th>
+            <th>Optimistic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Weekly Charges</td>
+            <td class="current">
+              AED {{ calculateCharges() | number : "1.0-0" }}
+            </td>
+            <td class="pessimistic">
+              AED {{ calculateCharges() * 1.5 | number : "1.0-0" }}
+            </td>
+            <td class="optimistic">
+              AED {{ calculateCharges() * 0.7 | number : "1.0-0" }}
+            </td>
+          </tr>
+          <tr>
+            <td>% of Income</td>
+            <td class="current">
+              {{ calculatePercentage() | number : "1.2-1" }}%
+            </td>
+            <td class="pessimistic">
+              {{ calculatePercentage() * 1.5 | number : "1.2-1" }}%
+            </td>
+            <td class="optimistic">
+              {{ calculatePercentage() * 0.7 | number : "1.2-1" }}%
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    Calculating your personalized impact...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+</div>
+
+
+

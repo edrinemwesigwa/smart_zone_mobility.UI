@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const getApiBase = () => {\n  const configured = window.__API_BASE__;\n  if (configured) {\n    return configured;\n  }\n  // Default to local backend ports\n  return \"http://localhost:54247\";\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

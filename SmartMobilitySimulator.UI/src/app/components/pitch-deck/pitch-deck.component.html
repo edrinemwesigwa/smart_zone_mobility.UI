@@ -1,0 +1,272 @@
+<div
+  class="pitch-deck"
+  [style.--deck-primary]="theme.primary"
+  [style.--deck-secondary]="theme.secondary"
+  [style.--deck-accent]="theme.accent"
+  [style.--deck-bg]="theme.background"
+  [style.--deck-text]="theme.text"
+>
+  <div class="pitch-header">
+    <h2>Pitch Deck Generator</h2>
+    <p>Craft, customize, and present agency-ready decks in minutes.</p>
+  </div>
+
+  <div *ngIf="isRemoteControl" class="remote-control">
+    <h3>Remote Control</h3>
+    <p>Use these controls to drive the presentation.</p>
+    <div class="remote-buttons">
+      <button (click)="sendRemoteCommand('prev')">Previous</button>
+      <button (click)="sendRemoteCommand('next')">Next</button>
+      <button (click)="sendRemoteCommand('toggleNotes')">Toggle Notes</button>
+      <button class="danger" (click)="sendRemoteCommand('stop')">
+        End Presentation
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!isRemoteControl" class="pitch-grid">
+    <div class="pitch-form">
+      <h3>Agency & Branding</h3>
+      <label>Agency</label>
+      <select [(ngModel)]="selectedAgency" (change)="updateLinks()">
+        <option *ngFor="let agency of agencyOptions" [value]="agency">
+          {{ agency }}
+        </option>
+      </select>
+
+      <div *ngIf="selectedAgency === 'Custom'">
+        <label>Custom Agency Name</label>
+        <input type="text" [(ngModel)]="customAgency" (input)="updateLinks()" />
+      </div>
+
+      <label>Agency Logo</label>
+      <input type="file" accept="image/*" (change)="onLogoUpload($event)" />
+      <button class="text-button" (click)="clearLogo()" *ngIf="logoDataUrl">
+        Remove Logo
+      </button>
+
+      <div class="theme-panel">
+        <h4>Color Scheme (UAE)</h4>
+        <div class="theme-grid">
+          <div>
+            <span>Primary</span>
+            <input
+              type="color"
+              [(ngModel)]="theme.primary"
+              (input)="updateLinks()"
+            />
+          </div>
+          <div>
+            <span>Secondary</span>
+            <input
+              type="color"
+              [(ngModel)]="theme.secondary"
+              (input)="updateLinks()"
+            />
+          </div>
+          <div>
+            <span>Accent</span>
+            <input
+              type="color"
+              [(ngModel)]="theme.accent"
+              (input)="updateLinks()"
+            />
+          </div>
+          <div>
+            <span>Background</span>
+            <input
+              type="color"
+              [(ngModel)]="theme.background"
+              (input)="updateLinks()"
+            />
+          </div>
+          <div>
+            <span>Text</span>
+            <input
+              type="color"
+              [(ngModel)]="theme.text"
+              (input)="updateLinks()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <h3>Templates</h3>
+      <div class="template-buttons">
+        <button (click)="applyTemplate('quick')">Quick Pitch (5)</button>
+        <button (click)="applyTemplate('investor')">Investor Deck (10)</button>
+        <button (click)="applyTemplate('government')">
+          Government Proposal (15)
+        </button>
+        <button (click)="applyTemplate('technical')">
+          Technical Deep Dive (20)
+        </button>
+      </div>
+
+      <h3>Slides</h3>
+      <div class="slide-list">
+        <div
+          *ngFor="let slide of slides; let i = index"
+          class="slide-item"
+          [class.active]="i === selectedSlideIndex"
+          (click)="selectSlide(i)"
+        >
+          <span>{{ i + 1 }}. {{ slide.title }}</span>
+          <button
+            class="icon-button"
+            (click)="removeSlide(i); $event.stopPropagation()"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+      <button class="btn-secondary" (click)="addSlide()">Add Slide</button>
+
+      <h3>Slide Editor</h3>
+      <label>Title</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedSlide.title"
+        (input)="updateLinks()"
+      />
+
+      <label>Content</label>
+      <textarea
+        rows="6"
+        [(ngModel)]="selectedSlide.content"
+        (input)="updateLinks()"
+      ></textarea>
+
+      <label>Speaker Notes</label>
+      <textarea
+        rows="4"
+        [(ngModel)]="selectedSlide.notes"
+        (input)="updateLinks()"
+      ></textarea>
+    </div>
+
+    <div class="pitch-preview">
+      <div class="preview-toolbar">
+        <div class="toolbar-left">
+          <button (click)="startPresentation()">Start Presentation</button>
+          <button (click)="toggleSpeakerNotes()">
+            {{ showSpeakerNotes ? "Hide" : "Show" }} Notes
+          </button>
+          <button (click)="openRemoteLink()">Open Remote Control</button>
+        </div>
+        <div class="toolbar-right">
+          <span>Timer: {{ getFormattedTimer() }}</span>
+        </div>
+      </div>
+
+      <div class="deck-preview" #presentationRoot>
+        <div class="deck-header">
+          <div>
+            <h4>{{ agencyName }}</h4>
+            <p>Smart Mobility Pitch Deck</p>
+          </div>
+          <img *ngIf="logoDataUrl" [src]="logoDataUrl" alt="Agency logo" />
+        </div>
+
+        <div class="slide-preview">
+          <h2>{{ selectedSlide.title }}</h2>
+          <pre>{{ selectedSlide.content }}</pre>
+        </div>
+
+        <div class="slide-footer">
+          <span>{{ selectedSlideIndex + 1 }} / {{ slides.length }}</span>
+          <span>Prepared for {{ agencyName }}</span>
+        </div>
+      </div>
+
+      <div id="pitch-deck-export" class="deck-export">
+        <div class="export-slide" *ngFor="let slide of slides; let i = index">
+          <div class="deck-header">
+            <div>
+              <h4>{{ agencyName }}</h4>
+              <p>Smart Mobility Pitch Deck</p>
+            </div>
+            <img *ngIf="logoDataUrl" [src]="logoDataUrl" alt="Agency logo" />
+          </div>
+
+          <div class="slide-preview">
+            <h2>{{ slide.title }}</h2>
+            <pre>{{ slide.content }}</pre>
+          </div>
+
+          <div class="slide-footer">
+            <span>{{ i + 1 }} / {{ slides.length }}</span>
+            <span>Prepared for {{ agencyName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="showSpeakerNotes" class="speaker-notes">
+        <h4>Speaker Notes</h4>
+        <p>{{ selectedSlide.notes || "Add notes to guide the presenter." }}</p>
+      </div>
+
+      <div class="export-panel">
+        <h3>Export & Sharing</h3>
+        <div class="export-actions">
+          <button (click)="exportPptx()">Export PPTX</button>
+          <button (click)="exportPdf()">Export PDF (Print)</button>
+          <button (click)="generateShareableLink()">Generate Share Link</button>
+        </div>
+
+        <label>Shareable Link</label>
+        <div class="copy-row">
+          <input type="text" [value]="shareableLink" readonly />
+          <button (click)="copyShareableLink()">Copy</button>
+        </div>
+
+        <label>Embed Code</label>
+        <div class="copy-row">
+          <textarea rows="3" readonly>{{ embedCode }}</textarea>
+          <button (click)="copyEmbedCode()">Copy</button>
+        </div>
+
+        <label>Remote Control Link</label>
+        <div class="copy-row">
+          <input type="text" [value]="remoteLink" readonly />
+          <button (click)="copyRemoteLink()">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="presentation-overlay" *ngIf="isPresenting">
+    <div
+      class="presentation"
+      [style.--deck-primary]="theme.primary"
+      [style.--deck-secondary]="theme.secondary"
+      [style.--deck-accent]="theme.accent"
+      [style.--deck-bg]="theme.background"
+      [style.--deck-text]="theme.text"
+    >
+      <div class="presentation-header">
+        <span>{{ agencyName }}</span>
+        <span>{{ getFormattedTimer() }}</span>
+      </div>
+
+      <div class="presentation-slide">
+        <h1>{{ slides[presentationIndex].title }}</h1>
+        <pre>{{ slides[presentationIndex].content }}</pre>
+      </div>
+
+      <div class="presentation-footer">
+        <button (click)="prevSlide()">Prev</button>
+        <button (click)="nextSlide()">Next</button>
+        <button class="danger" (click)="stopPresentation()">Exit</button>
+      </div>
+
+      <div class="presentation-notes" *ngIf="showSpeakerNotes">
+        <h4>Speaker Notes</h4>
+        <p>{{ slides[presentationIndex].notes || "No notes added." }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

@@ -1,0 +1,142 @@
+<h2>UAE Zone Map</h2>
+<div class="controls">
+  <button (click)="filterByEmirate('All')">All Zones</button>
+  <button (click)="filterByEmirate('Dubai')">Dubai</button>
+  <button (click)="filterByEmirate('Abu Dhabi')">Abu Dhabi</button>
+  <button (click)="filterByEmirate('Sharjah')">Sharjah</button>
+</div>
+
+<div class="traffic-controls">
+  <div class="traffic-toggle">
+    <span class="label">Traffic Layer:</span>
+    <button
+      [class.active]="trafficMode === 'live'"
+      [disabled]="!liveTrafficAvailable"
+      (click)="setTrafficMode('live')"
+    >
+      Live Traffic
+    </button>
+    <button
+      [class.active]="trafficMode === 'historical'"
+      (click)="setTrafficMode('historical')"
+    >
+      Historical Patterns
+    </button>
+    <button
+      [class.active]="trafficMode === 'simulation'"
+      (click)="setTrafficMode('simulation')"
+    >
+      Simulation Results
+    </button>
+  </div>
+  <div class="traffic-status">
+    <span
+      *ngIf="trafficMode === 'live' && liveTrafficAvailable"
+      class="badge live"
+      >Live</span
+    >
+    <span *ngIf="trafficMode === 'historical'" class="badge history"
+      >Historical</span
+    >
+    <span *ngIf="trafficMode === 'simulation'" class="badge sim"
+      >Simulation</span
+    >
+    <span
+      *ngIf="trafficMode === 'live' && !liveTrafficAvailable"
+      class="badge warn"
+    >
+      API key missing
+    </span>
+  </div>
+</div>
+
+<div
+  class="heatmap-controls"
+  *ngIf="trafficMode === 'historical' || trafficMode === 'simulation'"
+>
+  <div class="heatmap-time">
+    <span class="label">Time:</span>
+    <strong>{{ formatHour(timeIndex) }}</strong>
+  </div>
+  <input
+    type="range"
+    min="0"
+    max="23"
+    step="1"
+    [(ngModel)]="timeIndex"
+    (input)="onTimeChange()"
+  />
+  <button class="btn-heatmap" (click)="toggleAnimation()">
+    {{ isAnimating ? "Pause" : "Play" }}
+  </button>
+  <select [(ngModel)]="animationSpeed" (change)="onSpeedChange()">
+    <option [ngValue]="2500">Slow</option>
+    <option [ngValue]="1500">Normal</option>
+    <option [ngValue]="800">Fast</option>
+  </select>
+</div>
+
+<div class="heatmap-legend">
+  <span>Low</span>
+  <div class="legend-bar"></div>
+  <span>High</span>
+</div>
+
+<div class="map-container">
+  <div id="zone-map" class="map"></div>
+</div>
+
+<!-- Zones by Emirate Cards -->
+<div class="zones-by-emirate">
+  <h3>Zones by Emirate ({{ zones.length }})</h3>
+  <div *ngIf="isLoading" class="loading">Loading zones...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div class="emirate-group" *ngFor="let group of zonesByEmirate">
+    <div class="emirate-header">
+      <span class="emirate-flag">
+        {{
+          group.emirate === "Dubai"
+            ? "🇦🇪"
+            : group.emirate === "Abu Dhabi"
+              ? "🏛️"
+              : "🕌"
+        }}
+      </span>
+      <h4>{{ group.emirate }}</h4>
+      <span class="zone-count">{{ group.zones.length }} zones</span>
+    </div>
+
+    <div class="zone-cards-grid">
+      <div
+        class="zone-card"
+        *ngFor="let zone of group.zones"
+        (click)="onZoneSelected(zone)"
+        [class.selected]="selectedZone?.id === zone.id"
+      >
+        <div
+          class="zone-color-bar"
+          [style.background-color]="getZoneColor(zone.zoneType)"
+        ></div>
+        <div class="zone-card-content">
+          <h5>{{ zone.name }}</h5>
+          <span class="zone-type-badge">{{ zone.zoneType }}</span>
+          <div class="zone-charge">
+            <span class="charge-label">Rate:</span>
+            <span class="charge-value">AED {{ zone.chargePerHour }}/hr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="selectedZone" class="zone-details">
+  <h3>{{ selectedZone.name }} Details</h3>
+  <p><strong>Type:</strong> {{ selectedZone.zoneType }}</p>
+  <p><strong>Base Free Hours:</strong> {{ selectedZone.baseFreeHours }}</p>
+  <p><strong>Charge Per Hour:</strong> AED {{ selectedZone.chargePerHour }}</p>
+</div>
+
+
+

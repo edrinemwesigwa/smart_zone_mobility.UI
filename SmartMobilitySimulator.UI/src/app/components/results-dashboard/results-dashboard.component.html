@@ -1,0 +1,200 @@
+<div class="dashboard-container" *ngIf="results">
+  <h2>Simulation Results Dashboard</h2>
+
+  <div class="tabs">
+    <button
+      [class.active]="selectedTab === 'overview'"
+      (click)="selectedTab = 'overview'"
+    >
+      Overview
+    </button>
+    <button
+      [class.active]="selectedTab === 'detailed'"
+      (click)="selectedTab = 'detailed'"
+    >
+      Detailed Analysis
+    </button>
+    <button
+      [class.active]="selectedTab === 'equity'"
+      (click)="selectedTab = 'equity'"
+    >
+      Equity Impact
+    </button>
+  </div>
+
+  <div *ngIf="selectedTab === 'overview'" class="tab-content">
+    <div class="summary-card">
+      <h3>Impact Summary</h3>
+      <p>{{ getImpactSummary() }}</p>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <h4>Total Vehicles</h4>
+        <p class="large-number">{{ results.totalVehicles | number }}</p>
+      </div>
+      <div class="metric-card">
+        <h4>Diverted Vehicles</h4>
+        <p class="large-number">{{ results.vehiclesDiverted | number }}</p>
+        <p class="percentage">
+          {{
+            (results.vehiclesDiverted / results.totalVehicles) * 100
+              | number: "1.1-1"
+          }}%
+        </p>
+      </div>
+      <div class="metric-card success">
+        <h4>Congestion Reduction</h4>
+        <p class="large-number">
+          {{ results.congestionReduction | number: "1.1-1" }}%
+        </p>
+      </div>
+      <div class="metric-card revenue">
+        <h4>Estimated Revenue</h4>
+        <p class="large-number">AED {{ results.estimatedRevenue | number }}</p>
+      </div>
+      <div class="metric-card environment">
+        <h4>CO₂ Reduction</h4>
+        <p class="large-number">
+          {{ results.environmentalImpact | number: "1.0-0" }} kg
+        </p>
+      </div>
+      <div class="metric-card" [class.warning]="equityDisplay.isRegressive">
+        <h4>Equity Status</h4>
+        <p class="status">
+          {{ equityDisplay.isRegressive ? "⚠️ Regressive" : "✓ Fair" }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'detailed'" class="tab-content">
+    <div class="detailed-section">
+      <h3>Traffic Impact Analysis</h3>
+      <div class="analysis-row">
+        <div class="analysis-item">
+          <h4>Diversion Rate</h4>
+          <div class="progress-bar">
+            <div
+              class="progress"
+              [style.width.%]="
+                (results.vehiclesDiverted / results.totalVehicles) * 100
+              "
+            ></div>
+          </div>
+          <p>
+            {{
+              (results.vehiclesDiverted / results.totalVehicles) * 100
+                | number: "1.1-1"
+            }}% of vehicles diverted
+          </p>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 30px">Economic Impact</h3>
+      <div class="analysis-row">
+        <div class="analysis-item">
+          <h4>Hourly Revenue Rate</h4>
+          <p class="highlight">
+            AED {{ results.estimatedRevenue / 24 | number: "1.0-0" }}/hour
+          </p>
+        </div>
+        <div class="analysis-item">
+          <h4>Revenue per Vehicle</h4>
+          <p class="highlight">
+            AED
+            {{
+              results.estimatedRevenue / results.totalVehicles | number: "1.2-2"
+            }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'equity'" class="tab-content">
+    <div class="equity-section">
+      <h3>Fairness Analysis</h3>
+      <p
+        class="equity-status"
+        [class.warning]="results.equityImpact.isRegressive"
+      >
+        {{ getEquityStatus() }}
+      </p>
+
+      <div class="equity-metrics">
+        <div class="equity-item">
+          <h4>Low Income Burden</h4>
+          <p class="burden-value">
+            {{ equityDisplay.lowIncomeBurden | number: "1.2-2" }}%
+          </p>
+        </div>
+        <div class="equity-item">
+          <h4>High Income Burden</h4>
+          <p class="burden-value">
+            {{ equityDisplay.highIncomeBurden | number: "1.2-2" }}%
+          </p>
+        </div>
+        <div class="equity-item">
+          <h4>Burden Ratio</h4>
+          <p class="burden-value">
+            {{ equityDisplay.burdenRatio | number: "1.2-2" }}x
+          </p>
+        </div>
+      </div>
+
+      <div class="equity-chart">
+        <h4>Income Bracket Comparison</h4>
+        <div class="comparison-bars">
+          <div class="bar-item">
+            <label>Low Income</label>
+            <div class="bar-container">
+              <div
+                class="bar low"
+                [style.width.%]="equityDisplay.lowIncomeBurden * 10"
+              ></div>
+            </div>
+            <span
+              >{{
+                results.equityImpact.lowIncomeBurden | number: "1.2-2"
+              }}%</span
+            >
+          </div>
+          <div class="bar-item">
+            <label>High Income</label>
+            <div class="bar-container">
+              <div
+                class="bar high"
+                [style.width.%]="equityDisplay.highIncomeBurden * 10"
+              ></div>
+            </div>
+            <span
+              >{{
+                results.equityImpact.highIncomeBurden | number: "1.2-2"
+              }}%</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button (click)="downloadReport()" class="btn-download">
+      Download Full Report
+    </button>
+    <button class="btn-download secondary" routerLink="/pilot-proposal">
+      Generate Pilot Proposal
+    </button>
+    <button class="btn-download secondary" routerLink="/business-case">
+      Business Case Calculator
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!results" class="empty-state">
+  <p>Run a simulation to see results here</p>
+</div>
+
+
+

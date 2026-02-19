@@ -1,0 +1,156 @@
+<!-- When logged in: show nav + router-outlet + footer -->
+<!-- When logged out: show only router-outlet (login page is fullscreen) -->
+<ng-container *ngIf="isLoggedIn; else publicLayout">
+  <nav class="main-nav">
+    <div class="brand">
+      <div class="brand-icon">🛣️</div>
+      <span class="brand-text">Smart Mobility Simulator</span>
+    </div>
+
+    <div class="nav-links">
+      <!-- Dashboard -->
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+      >
+        <span>📊</span> Dashboard
+      </a>
+
+      <!-- Analysis Dropdown -->
+      <div class="dropdown">
+        <button class="dropbtn"><span>🔍</span> Analysis ▾</button>
+        <div class="dropdown-content">
+          <a routerLink="/uae-facts" routerLinkActive="active">
+            <span>🇦🇪</span> UAE Facts
+          </a>
+          <a routerLink="/authority-selection" routerLinkActive="active">
+            <span>🏛️</span> Authority Selection
+          </a>
+          <a routerLink="/authority-comparison" routerLinkActive="active">
+            <span>⚖️</span> Authority Comparison
+          </a>
+          <a routerLink="/zone-editor" routerLinkActive="active">
+            <span>✏️</span> Zone Editor
+          </a>
+        </div>
+      </div>
+
+      <!-- Tools Dropdown -->
+      <div class="dropdown">
+        <button class="dropbtn"><span>🛠️</span> Tools ▾</button>
+        <div class="dropdown-content">
+          <a routerLink="/wizard" routerLinkActive="active">
+            <span>🎯</span> Workflow Wizard
+          </a>
+          <a routerLink="/comparison" routerLinkActive="active">
+            <span>⚖️</span> Scenario Compare
+          </a>
+          <a routerLink="/roi-calculator" routerLinkActive="active">
+            <span>💰</span> ROI Calculator
+          </a>
+          <a routerLink="/mobile-preview" routerLinkActive="active">
+            <span>📱</span> Mobile Preview
+          </a>
+        </div>
+      </div>
+
+      <!-- Reports Dropdown -->
+      <div class="dropdown">
+        <button class="dropbtn"><span>📄</span> Reports ▾</button>
+        <div class="dropdown-content">
+          <a routerLink="/pilot-proposal" routerLinkActive="active">
+            <span>🚀</span> Pilot Proposal
+          </a>
+          <a routerLink="/business-case" routerLinkActive="active">
+            <span>💼</span> Business Case
+          </a>
+          <a routerLink="/pitch-deck" routerLinkActive="active">
+            <span>📑</span> Pitch Deck
+          </a>
+        </div>
+      </div>
+
+      <!-- Settings Dropdown -->
+      <div class="dropdown">
+        <button class="dropbtn"><span>⚙️</span> Settings ▾</button>
+        <div class="dropdown-content">
+          <a routerLink="/user-management" routerLinkActive="active">
+            <span>👥</span> User Management
+          </a>
+          <a routerLink="/audit-trail" routerLinkActive="active">
+            <span>📋</span> Audit Trail
+          </a>
+          <a routerLink="/business-admin-guide" routerLinkActive="active">
+            <span>📖</span> Admin Guide
+          </a>
+          <a
+            routerLink="/technical-architecture-guide"
+            routerLinkActive="active"
+          >
+            <span>🔧</span> Tech Guide
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Language Switcher -->
+      <app-language-switcher></app-language-switcher>
+
+      <!-- User Profile Dropdown -->
+      <div
+        class="user-dropdown"
+        *ngIf="authService.currentUser$ | async as user"
+      >
+        <button class="user-profile-btn">
+          <div class="user-avatar">
+            {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+          </div>
+          <div class="user-info">
+            <span class="user-name"
+              >{{ user.firstName }} {{ user.lastName }}</span
+            >
+            <span class="user-role">{{ user.role }}</span>
+          </div>
+          <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="user-dropdown-content">
+          <div class="user-dropdown-header">
+            <div class="user-avatar-large">
+              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+            </div>
+            <div class="user-details">
+              <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+              <span>{{ user.email }}</span>
+              <span class="badge">{{ user.role }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a (click)="authService.logout()" class="logout-btn">
+            <span>🚪</span> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer></app-footer>
+</ng-container>
+
+<!-- Public layout (login page) - just router outlet, no nav/footer -->
+<ng-template #publicLayout>
+  <div class="language-switcher-public">
+    <app-language-switcher></app-language-switcher>
+  </div>
+  <router-outlet></router-outlet>
+</ng-template>
+
+<!-- Always show toast and spinner -->
+<app-toast></app-toast>
+<app-loading-spinner></app-loading-spinner>

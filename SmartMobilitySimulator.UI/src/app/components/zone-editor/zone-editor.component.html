@@ -1,0 +1,326 @@
+<div class="editor-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">🗺️</div>
+      <div>
+        <h1>Zone Editor</h1>
+        <p class="subtitle">Manage Smart Mobility configurations across the UAE</p>
+      </div>
+    </div>
+    <button
+      (click)="startCreate()"
+      *ngIf="!isEditing && !isCreating"
+      class="btn-primary btn-large"
+    >
+      <span class="btn-icon">+</span> Create New Zone
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="success" class="alert alert-success">
+    <span class="alert-icon">✓</span>
+    <span>{{ success }}</span>
+  </div>
+  <div *ngIf="error" class="alert alert-error">
+    <span class="alert-icon">⚠️</span>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Form Panel -->
+  <div *ngIf="isEditing || isCreating" class="form-panel">
+    <!-- Form Header -->
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="panel-icon">{{ isCreating ? "➕" : "✏️" }}</span>
+        <h3>{{ isCreating ? "Create New Zone" : "Edit Zone" }}</h3>
+      </div>
+      <button (click)="cancel()" class="btn-close">✕</button>
+    </div>
+
+    <form (ngSubmit)="saveZone()" class="zone-form">
+      <!-- Section 1: Location Info -->
+      <div class="form-card">
+        <div class="card-header">
+          <span class="card-icon">📍</span>
+          <h4>Location Details</h4>
+        </div>
+        <div class="card-body">
+          <div class="form-group full-width">
+            <label>
+              <span class="label-icon">🏷️</span>
+              Zone Name <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="formData.name"
+              name="name"
+              required
+              placeholder="e.g., Deira Business District"
+              class="modern-input"
+            />
+          </div>
+
+          <div class="form-row three-cols">
+            <div class="form-group">
+              <label>
+                <span class="label-icon">🏙️</span>
+                Emirate <span class="required">*</span>
+              </label>
+              <select
+                [(ngModel)]="formData.emirate"
+                name="emirate"
+                required
+                class="modern-select"
+              >
+                <option value="">Select</option>
+                <option *ngFor="let e of emirates" [value]="e">{{ e }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <span class="label-icon">🏢</span>
+                Zone Type <span class="required">*</span>
+              </label>
+              <select
+                [(ngModel)]="formData.zoneType"
+                name="zoneType"
+                required
+                class="modern-select"
+              >
+                <option value="">Select</option>
+                <option *ngFor="let t of zoneTypes" [value]="t">{{ t }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Pricing -->
+      <div class="form-card">
+        <div class="card-header">
+          <span class="card-icon">💰</span>
+          <h4>Pricing Settings</h4>
+        </div>
+        <div class="card-body">
+          <div class="form-row three-cols">
+            <div class="form-group">
+              <label>
+                <span class="label-icon">⏱️</span>
+                Free Hours
+              </label>
+              <div class="input-with-unit modern-input-group">
+                <input
+                  type="number"
+                  [(ngModel)]="formData.baseFreeHours"
+                  name="baseFreeHours"
+                  min="0"
+                  max="24"
+                  class="modern-input"
+                />
+                <span class="unit-badge">hrs</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <span class="label-icon">💵</span>
+                Hourly Rate
+              </label>
+              <div class="input-with-unit modern-input-group">
+                <span class="currency-prefix">AED</span>
+                <input
+                  type="number"
+                  [(ngModel)]="formData.chargePerHour"
+                  name="chargePerHour"
+                  min="0"
+                  step="0.01"
+                  placeholder="20"
+                  class="modern-input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>
+              <span class="label-icon">🚦</span>
+              Peak Hours <span class="optional">(Optional)</span>
+            </label>
+            <div class="peak-hours-container">
+              <input
+                type="text"
+                [(ngModel)]="formData.peakHours"
+                name="peakHours"
+                placeholder="07:30-09:00, 16:00-18:00"
+                class="modern-input"
+              />
+              <div class="peak-presets">
+                <button
+                  type="button"
+                  class="preset-btn"
+                  (click)="setPeakHours('morning')"
+                >
+                  🌅 Morning
+                </button>
+                <button
+                  type="button"
+                  class="preset-btn"
+                  (click)="setPeakHours('evening')"
+                >
+                  🌆 Evening
+                </button>
+                <button
+                  type="button"
+                  class="preset-btn"
+                  (click)="setPeakHours('both')"
+                >
+                  🌅🌆 Both
+                </button>
+              </div>
+            </div>
+            <span class="input-hint"
+              >Time ranges when peak rates apply (HH:MM-HH:MM format)</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Summary -->
+      <div class="form-card summary-card" *ngIf="formData.name">
+        <div class="card-header">
+          <span class="card-icon">📋</span>
+          <h4>Zone Summary</h4>
+        </div>
+        <div class="card-body">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Zone</span>
+              <span class="summary-value">{{ formData.name }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Location</span>
+              <span class="summary-value"
+                >{{ formData.emirate }} • {{ formData.zoneType }}</span
+              >
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Free Time</span>
+              <span class="summary-value"
+                >{{ formData.baseFreeHours || 0 }} hours</span
+              >
+            </div>
+            <div class="summary-item highlight">
+              <span class="summary-label">Rate</span>
+              <span class="summary-value"
+                >AED {{ formData.chargePerHour || 0 }}/hour</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="btn-secondary">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">
+            {{ isCreating ? "✓ Create Zone" : "✓ Update Zone" }}
+          </span>
+          <span *ngIf="isLoading" class="loading-spinner">
+            <span class="spinner"></span>
+            Saving...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Zones Table -->
+  <div class="zones-section">
+    <div class="section-header">
+      <h2>Existing Zones</h2>
+      <span class="zone-count">{{ zones.length }} zones configured</span>
+    </div>
+
+    <div class="table-container">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Zone Name</th>
+            <th>Emirate</th>
+            <th>Type</th>
+            <th>Free Hours</th>
+            <th>Rate</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody *ngFor="let group of groupedZones">
+          <tr class="group-header">
+            <td colspan="6">
+              <span class="emirate-badge" [attr.data-emirate]="group.emirate">
+                {{ group.emirate }}
+              </span>
+              <span class="zone-count-badge"
+                >{{ group.zones.length }} zones</span
+              >
+            </td>
+          </tr>
+          <tr *ngFor="let zone of group.zones" class="zone-row">
+            <td class="zone-name">{{ zone.name }}</td>
+            <td>
+              <span class="emirate-tag">{{ zone.emirate }}</span>
+            </td>
+            <td>
+              <span class="type-badge" [attr.data-type]="zone.zoneType">
+                {{ zone.zoneType }}
+              </span>
+            </td>
+            <td>
+              <span class="free-hours">
+                <span class="hours-value">{{ zone.baseFreeHours }}</span>
+                <span class="hours-unit">hrs</span>
+              </span>
+            </td>
+            <td>
+              <span class="rate-value">AED {{ zone.chargePerHour }}/hr</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  (click)="editZone(zone)"
+                  class="btn-action btn-edit"
+                  title="Edit"
+                >
+                  ✎
+                </button>
+                <button
+                  (click)="deleteZone(zone.id)"
+                  class="btn-action btn-delete"
+                  title="Delete"
+                >
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="zones.length === 0" class="empty-state">
+        <div class="empty-icon">🗺️</div>
+        <h3>No zones configured yet</h3>
+        <p>Create your first Smart Mobility to get started</p>
+        <button (click)="startCreate()" class="btn-primary">
+          + Create First Zone
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

@@ -1,0 +1,404 @@
+<div class="controls-container">
+  <h2>Simulation Controls</h2>
+
+  <div *ngIf="error" class="error-message">✗ {{ error }}</div>
+
+  <div class="controls-layout">
+    <div class="control-panel">
+      <div class="form-group">
+        <label>Scenarios</label>
+        <div class="scenario-buttons">
+          <button
+            *ngFor="let scenario of scenarios"
+            type="button"
+            class="btn-scenario"
+            (click)="applyScenario(scenario.name)"
+          >
+            {{ scenario.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Select Zone</label>
+        <select [(ngModel)]="selectedZoneId" name="zoneId">
+          <option value="">-- Select a Zone --</option>
+          <option *ngFor="let zone of zones" [value]="zone.id">
+            {{ zone.name }} ({{ zone.emirate }})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Simulation Date & Time</label>
+        <app-date-time-picker
+          [label]="'Simulation Date'"
+          [timeLabel]="'Time'"
+          [showQuickActions]="true"
+          [(ngModel)]="simulationDateTime"
+          name="simulationDateTime"
+        ></app-date-time-picker>
+      </div>
+
+      <div class="form-group">
+        <label>Peak Hour Multiplier</label>
+        <div class="range-control">
+          <input
+            type="range"
+            [(ngModel)]="peakMultiplier"
+            name="peakMultiplier"
+            min="1"
+            max="3"
+            step="0.1"
+          />
+          <span class="value">{{ peakMultiplier.toFixed(1) }}x</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Diversion Threshold (minutes)</label>
+        <div class="range-control">
+          <input
+            type="range"
+            [(ngModel)]="diversionThreshold"
+            name="threshold"
+            min="30"
+            max="120"
+            step="5"
+          />
+          <span class="value">{{ diversionThreshold }} min</span>
+        </div>
+      </div>
+
+      <div class="form-group checkbox">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="exemptionsEnabled"
+            name="exemptions"
+          />
+          Enable Exemptions (Public Transport, Commercial, Emergency,
+          Diplomatic)
+        </label>
+      </div>
+
+      <div class="actions">
+        <button
+          (click)="runSimulation()"
+          class="btn-run"
+          [disabled]="isRunning || !selectedZoneId"
+        >
+          {{ isRunning ? "Running Simulation..." : "Run Simulation" }}
+        </button>
+        <button
+          type="button"
+          class="btn-run secondary"
+          (click)="startPresentation()"
+        >
+          Presentation Mode
+        </button>
+      </div>
+    </div>
+
+    <div class="results-preview">
+      <h3>Quick Results</h3>
+      <div *ngIf="result; else emptyResults">
+        <div class="metrics-grid">
+          <div class="metric">
+            <h4>Total Vehicles</h4>
+            <p class="value">{{ result.totalVehicles | number }}</p>
+          </div>
+          <div class="metric">
+            <h4>Diverted Vehicles</h4>
+            <p class="value">{{ result.vehiclesDiverted | number }}</p>
+          </div>
+          <div class="metric">
+            <h4>Congestion Reduction</h4>
+            <p class="value">
+              {{ result.congestionReduction | number: "1.1-1" }}%
+            </p>
+          </div>
+          <div class="metric">
+            <h4>Estimated Revenue</h4>
+            <p class="value">AED {{ result.estimatedRevenue | number }}</p>
+          </div>
+          <div class="metric">
+            <h4>CO₂ Reduction</h4>
+            <p class="value">{{ result.environmentalImpact | number }} kg</p>
+          </div>
+          <div class="metric" [class.regressive]="equityDisplay.isRegressive">
+            <h4>Equity Impact</h4>
+            <p class="value">
+              {{ equityDisplay.isRegressive ? "⚠️ Regressive" : "✓ Fair" }}
+            </p>
+          </div>
+        </div>
+
+        <div class="economic-impact">
+          <h4>Economic Impact</h4>
+          <div *ngIf="isEconomicLoading" class="loading">Loading impact...</div>
+          <div *ngIf="!isEconomicLoading && economicImpact">
+            <div class="impact-row">
+              <span>NPV (5 yrs):</span>
+              <strong
+                >AED {{ economicImpact.revenueProjection.npv | number }}</strong
+              >
+            </div>
+            <div class="impact-row">
+              <span>Annual Revenue:</span>
+              <strong
+                >AED
+                {{
+                  economicImpact.revenueProjection.baseAnnualRevenue | number
+                }}</strong
+              >
+            </div>
+            <div class="impact-row">
+              <span>Productivity Gain (daily):</span>
+              <strong
+                >AED
+                {{
+                  economicImpact.productivity.dailyProductivityGainAed | number
+                }}</strong
+              >
+            </div>
+            <div class="impact-row">
+              <span>Equity (Low vs High):</span>
+              <strong
+                >{{ economicImpact.equity.lowIncomeBurden | number: "1.2-2" }}%
+                /
+                {{
+                  economicImpact.equity.highIncomeBurden | number: "1.2-2"
+                }}%</strong
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="credibility-panels">
+          <details class="credibility-panel">
+            <summary>Assumptions & Confidence</summary>
+            <div class="panel-body">
+              <div class="impact-row">
+                <span>Confidence (qualitative):</span>
+                <strong>{{ confidenceLabel }}</strong>
+              </div>
+              <div class="impact-row">
+                <span>Data provenance:</span>
+                <strong>{{ dataProvenance }}</strong>
+              </div>
+              <div class="impact-row">
+                <span>Assumptions:</span>
+              </div>
+              <ul>
+                <li *ngFor="let assumption of assumptions">{{ assumption }}</li>
+              </ul>
+              <p class="disclaimer">
+                Outputs are directional estimates for sandbox use only.
+              </p>
+            </div>
+          </details>
+
+          <div class="credibility-panel">
+            <h4>Baseline vs Policy Comparison</h4>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Baseline</th>
+                  <th>Policy</th>
+                  <th>Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Revenue (AED)</td>
+                  <td>Not available</td>
+                  <td>{{ result.estimatedRevenue | number }}</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>Congestion proxy</td>
+                  <td>
+                    {{ baselinePolicy.baseline?.congestionLevel ?? "N/A" }}
+                  </td>
+                  <td>
+                    {{ baselinePolicy.policy?.congestionLevel ?? "N/A" }}
+                  </td>
+                  <td>
+                    {{ formatDelta(baselinePolicy.delta?.congestionLevel) }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Equity impact</td>
+                  <td>Not available</td>
+                  <td>
+                    {{
+                      equityDisplay.isRegressive
+                        ? "Regressive"
+                        : "Not regressive"
+                    }}
+                  </td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>Compliance</td>
+                  <td>Not available</td>
+                  <td>
+                    {{ result.complianceRate ?? "Not available" }}
+                  </td>
+                  <td>—</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="disclaimer">
+              Baseline values shown when provided; otherwise marked as not
+              available.
+            </p>
+          </div>
+
+          <div class="credibility-panel">
+            <h4>Data Coverage</h4>
+            <div class="impact-row">
+              <span>Movements used:</span>
+              <strong>{{ movementCount | number }}</strong>
+            </div>
+            <div class="impact-row">
+              <span>Fallback usage:</span>
+              <strong>{{
+                warnings.join(" ").toLowerCase().includes("fallback")
+                  ? "Yes"
+                  : "No"
+              }}</strong>
+            </div>
+            <div class="impact-row">
+              <span>Missing data warnings:</span>
+              <strong>{{ warnings.length > 0 ? "Yes" : "No" }}</strong>
+            </div>
+          </div>
+
+          <div class="credibility-panel" *ngIf="warnings.length > 0">
+            <h4>Warnings & Validation</h4>
+            <ul>
+              <li *ngFor="let warning of warnings">
+                <strong>{{ getWarningCategory(warning) }}:</strong>
+                {{ warning }}
+              </li>
+            </ul>
+            <p class="disclaimer">
+              Warnings are informational and do not block the simulation.
+            </p>
+          </div>
+        </div>
+
+        <div class="export-actions">
+          <button (click)="exportResult('pdf')" class="btn-export">
+            Export PDF
+          </button>
+          <button (click)="downloadInvestorReport()" class="btn-export">
+            Download Investor Report
+          </button>
+          <button (click)="exportResult('csv')" class="btn-export">
+            Export CSV
+          </button>
+          <button (click)="exportResult('json')" class="btn-export">
+            Export JSON
+          </button>
+        </div>
+      </div>
+      <ng-template #emptyResults>
+        <p class="empty-results">Run a simulation to see results here.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <div
+    *ngIf="presentationMode"
+    id="presentation-root"
+    class="presentation-overlay"
+  >
+    <div class="presentation-card">
+      <h2>Smart Mobility Demo</h2>
+      <p class="presentation-step">
+        Step {{ presentationStep + 1 }} of {{ presentationScript.length }}
+      </p>
+      <div class="presentation-progress">
+        <div
+          class="presentation-progress-bar"
+          [style.width.%]="
+            ((presentationStep + 1) / presentationScript.length) * 100
+          "
+        ></div>
+      </div>
+      <p class="presentation-title">
+        {{ presentationScript[presentationStep].title }}
+      </p>
+      <p class="presentation-text">
+        {{ presentationScript[presentationStep].text }}
+      </p>
+      <div class="presentation-status">
+        <div>
+          <span class="label">Scenario:</span>
+          <strong>{{ currentScenarioLabel || "Manual" }}</strong>
+        </div>
+        <div>
+          <span class="label">Auto-run:</span>
+          <strong>{{ autoRunScenarios ? "On" : "Off" }}</strong>
+        </div>
+        <div>
+          <span class="label">Full screen:</span>
+          <strong>{{ isFullScreen ? "On" : "Off" }}</strong>
+        </div>
+      </div>
+
+      <div class="presentation-metrics" *ngIf="result">
+        <div class="metric">
+          <h4>Revenue</h4>
+          <p class="value">AED {{ result.estimatedRevenue | number }}</p>
+        </div>
+        <div class="metric">
+          <h4>Congestion</h4>
+          <p class="value">
+            {{ result.congestionReduction | number: "1.1-1" }}%
+          </p>
+        </div>
+        <div class="metric">
+          <h4>Vehicles</h4>
+          <p class="value">{{ result.totalVehicles | number }}</p>
+        </div>
+        <div class="metric">
+          <h4>NPV</h4>
+          <p class="value">
+            AED {{ economicImpact?.revenueProjection?.npv | number }}
+          </p>
+        </div>
+      </div>
+      <div class="presentation-actions">
+        <button
+          class="btn-export secondary"
+          (click)="previousPresentationStep()"
+        >
+          Previous
+        </button>
+        <button class="btn-export" (click)="nextPresentationStep()">
+          Next
+        </button>
+        <button class="btn-export" (click)="toggleScenarioAutoRun()">
+          {{ autoRunScenarios ? "Stop Auto-run" : "Auto-run Scenarios" }}
+        </button>
+        <button class="btn-export" (click)="toggleFullScreen()">
+          {{ isFullScreen ? "Exit Full Screen" : "Full Screen" }}
+        </button>
+        <button class="btn-export" (click)="exportPresentationVideo()">
+          Export Presentation Video
+        </button>
+        <button class="btn-export secondary" (click)="stopPresentation()">
+          Exit Presentation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

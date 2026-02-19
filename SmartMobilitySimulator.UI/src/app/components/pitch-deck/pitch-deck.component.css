@@ -1,0 +1,326 @@
+.pitch-deck {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--deck-text);
+}
+
+.pitch-header {
+  margin-bottom: 20px;
+}
+
+.pitch-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.4fr);
+  gap: 24px;
+}
+
+.pitch-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pitch-form label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600;
+  color: #37474f;
+}
+
+.pitch-form input[type="text"],
+.pitch-form select,
+.pitch-form textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  font-family: inherit;
+}
+
+.pitch-form textarea {
+  resize: vertical;
+}
+
+.text-button {
+  margin-top: 6px;
+  background: none;
+  border: none;
+  color: #1565c0;
+  cursor: pointer;
+}
+
+.theme-panel {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f5f6f8;
+  border-radius: 10px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.theme-grid span {
+  display: block;
+  font-size: 12px;
+  color: #546e7a;
+  margin-bottom: 4px;
+}
+
+.template-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.template-buttons button,
+.btn-secondary,
+.export-actions button,
+.preview-toolbar button {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cfd8dc;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.slide-list {
+  max-height: 240px;
+  overflow: auto;
+  margin-top: 8px;
+  border: 1px solid #eceff1;
+  border-radius: 8px;
+}
+
+.slide-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eef1f4;
+  cursor: pointer;
+}
+
+.slide-item.active {
+  background: rgba(0, 115, 47, 0.08);
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  color: #e53935;
+  cursor: pointer;
+}
+
+.pitch-preview {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.preview-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.deck-preview {
+  background: var(--deck-bg);
+  border-radius: 16px;
+  padding: 24px;
+  min-height: 360px;
+  color: var(--deck-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.deck-export {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 960px;
+}
+
+.export-slide {
+  background: var(--deck-bg);
+  border-radius: 16px;
+  padding: 24px;
+  min-height: 540px;
+  margin-bottom: 24px;
+  color: var(--deck-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deck-header img {
+  max-height: 48px;
+  max-width: 160px;
+}
+
+.slide-preview h2 {
+  margin-top: 20px;
+  color: var(--deck-primary);
+}
+
+.slide-preview pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.slide-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #546e7a;
+}
+
+.speaker-notes {
+  margin-top: 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px dashed #cfd8dc;
+}
+
+.export-panel {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.copy-row {
+  display: flex;
+  gap: 8px;
+}
+
+.copy-row input,
+.copy-row textarea {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+}
+
+.remote-control {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.remote-buttons {
+  display: grid;
+  gap: 10px;
+  max-width: 240px;
+}
+
+.remote-buttons button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #1e88e5;
+  color: #fff;
+  cursor: pointer;
+}
+
+.remote-buttons .danger {
+  background: #d32f2f;
+}
+
+.presentation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presentation {
+  width: min(1200px, 94vw);
+  height: min(720px, 90vh);
+  background: var(--deck-bg);
+  color: var(--deck-text);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.presentation-header,
+.presentation-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.presentation-slide h1 {
+  color: var(--deck-primary);
+  margin-bottom: 16px;
+}
+
+.presentation-slide pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 20px;
+}
+
+.presentation-footer button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  background: var(--deck-primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.presentation-footer .danger {
+  background: #c62828;
+}
+
+.presentation-notes {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+@media (max-width: 900px) {
+  .pitch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .copy-row {
+    flex-direction: column;
+  }
+}
+
