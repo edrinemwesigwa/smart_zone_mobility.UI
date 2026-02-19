@@ -27,9 +27,12 @@ jobs:
         working-directory: SmartMobilitySimulator.UI
         run: npm install --legacy-peer-deps
 
+      - name: Install Angular CLI globally
+        run: npm install -g @angular/cli
+
       - name: Build Angular application
         working-directory: SmartMobilitySimulator.UI
-        run: npx ng build --prod
+        run: npm run build
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
