@@ -24,10 +24,10 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: cd SmartMobilitySimulator.UI && npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build Angular application
-        run: cd SmartMobilitySimulator.UI && npm run build
+        run: npm run build
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -49,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./SmartMobilitySimulator.UI/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
@@ -60,9 +60,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./SmartMobilitySimulator.UI/dist/smart-mobility-simulator-ui
+          path: ./dist/smart-mobility-simulator-ui
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-
-        # end of build-and-deploy job
