@@ -25,12 +25,14 @@ jobs:
         with:
           node-version: "20"
 
-      # 3. Install dependencies
+      # 3. Install dependencies including Angular CLI locally
       - name: Install dependencies
         working-directory: SmartMobilitySimulator.UI
-        run: npm install --legacy-peer-deps
+        run: |
+          npm install --legacy-peer-deps
+          npm install @angular/cli --save-dev
 
-      # 4. Build Angular application
+      # 4. Build Angular application using local CLI
       - name: Build Angular application
         working-directory: SmartMobilitySimulator.UI
         run: npx ng build --configuration production
