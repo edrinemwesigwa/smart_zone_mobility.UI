@@ -24,9 +24,11 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
+        working-directory: smart_zone_mobility.UI
         run: npm install --legacy-peer-deps
 
       - name: Build Angular application
+        working-directory: smart_zone_mobility.UI
         run: npm run build
 
       - name: Setup Docker Buildx
@@ -48,8 +50,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./smart_zone_mobility.UI
+          file: ./smart_zone_mobility.UI/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
@@ -60,7 +62,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/smart-mobility-simulator-ui
+          path: ./smart_zone_mobility.UI/dist/smart-mobility-simulator-ui
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
